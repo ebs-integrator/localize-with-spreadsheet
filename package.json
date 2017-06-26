@@ -3,9 +3,9 @@
         "name": "Xavier Hainaux",
         "email": "xavier.hainaux@gmail.com"
     },
-    "name": "localize-with-spreadsheet",
+    "name": "localize-with-spreadsheet-2",
     "description": "Create a localization file in Android or iOS format from a Google Spreadsheet",
-    "version": "0.2.1",
+    "version": "2.0.0",
     "homepage": "https://github.com/xavierha/localize-with-spreadsheet",
     "repository": {
         "type": "git",
