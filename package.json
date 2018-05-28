@@ -5,7 +5,7 @@
   },
   "name": "localize-with-spreadsheet-2",
   "description": "Create a localization file in Android or iOS format from a Google Spreadsheet. Version 2",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "homepage": "https://github.com/NeverwinterMoon/localize-with-spreadsheet-2",
   "repository": {
     "type": "git",
