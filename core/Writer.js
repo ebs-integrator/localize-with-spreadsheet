@@ -1,5 +1,5 @@
-var fs = require('fs');
-var EOL = require('os').EOL;
+var fs = require('fs')
+var EOL = require('./Constants').EOL
 
 var Writer = function () {
 

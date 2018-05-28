@@ -1,7 +1,6 @@
 var Line = require('./Line.js');
 var GoogleSpreadsheet = require('google-spreadsheet');
 var Q = require('q');
-var EOL = require('os').EOL;
 
 var LineReader = {
     select: function (sheets, keyCol, valCol, cb) {

@@ -4,7 +4,7 @@ var Transformer = {
     insert: function (input, newValues) { /* merge newValues dans input selon la convention de la plateforme (utilisation d'un commentaire pour séparer ce qui est généré */
     }
 };
-var EOL = require('os').EOL;
+var EOL = require('./Constants').EOL
 
 var iOSTransformer = {
     transformComment: function (comment) {

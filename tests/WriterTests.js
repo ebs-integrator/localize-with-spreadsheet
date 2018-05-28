@@ -3,7 +3,7 @@ var Transformer = require('../core/Transformer')
 var androidTransformer = Transformer.android
 var iosTransformer = Transformer.ios
 var Line = require('../core/Line')
-var EOL = require('os').EOL
+var EOL = require('../core/Constants').EOL
 
 exports.test_getTransformedLines_WithAndroidTransformer_ShouldReturnXml = function(test) {
   var writer = new FileWriter('path')

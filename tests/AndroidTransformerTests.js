@@ -1,5 +1,5 @@
-var transformer = require("../core/Transformer.js")['android']
-var EOL = require('os').EOL
+var transformer = require('../core/Transformer.js')['android']
+var EOL = require('../core/Constants').EOL
 
 exports.testComment = function(test) {
   var result = transformer.transformComment('un commentaire')
