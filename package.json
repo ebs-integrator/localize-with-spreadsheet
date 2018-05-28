@@ -1,24 +1,24 @@
 {
-    "author": {
-        "name": "Xavier Hainaux",
-        "email": "xavier.hainaux@gmail.com"
-    },
-    "name": "localize-with-spreadsheet-2",
-    "description": "Create a localization file in Android or iOS format from a Google Spreadsheet",
-    "version": "2.1.1",
-    "homepage": "https://github.com/xavierha/localize-with-spreadsheet",
-    "repository": {
-        "type": "git",
-        "url": "git://github.com/xavierha/localize-with-spreadsheet.git"
-    },
-    "main": "index.js",
-    "dependencies": {
-        "google-spreadsheet": "2.0.3",
-        "q": "0.9.2",
-        "mkpath": "0.1.0"
-    },
-    "devDependencies": {
-        "nodeunit": "0.8.1"
-    },
-    "readmeFilename": "README.md"
+  "author": {
+    "name": "Pavel Sorokin",
+    "email": "manni.calavera@gmail.com"
+  },
+  "name": "localize-with-spreadsheet-2",
+  "description": "Create a localization file in Android or iOS format from a Google Spreadsheet. Version 2",
+  "version": "2.1.1",
+  "homepage": "https://github.com/NeverwinterMoon/localize-with-spreadsheet-2",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:NeverwinterMoon/localize-with-spreadsheet-2.git"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "google-spreadsheet": "2.0.3",
+    "q": "0.9.2",
+    "mkpath": "0.1.0"
+  },
+  "devDependencies": {
+    "nodeunit": "0.8.1"
+  },
+  "readmeFilename": "README.md"
 }
