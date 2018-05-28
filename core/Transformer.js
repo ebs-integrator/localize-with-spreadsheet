@@ -50,7 +50,7 @@ var androidTransformer = {
         var ouput = '<string name="' + key + '">"' + normalizedValue + '"</string>';
 
         var currPos = 0, nbOcc = 1, newStr = "";
-        while ((currPos = ouput.indexOf("%#$", currPos)) != -1) {
+        while ((currPos = ouput.indexOf("%#$", currPos)) !== -1) {
             ouput = setCharAt(ouput, currPos + 1, nbOcc);
             ++currPos;
             ++nbOcc;

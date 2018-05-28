@@ -18,7 +18,10 @@
     "mkpath": "0.1.0"
   },
   "devDependencies": {
-    "nodeunit": "0.8.1"
+    "nodeunit": "0.11.2"
   },
-  "readmeFilename": "README.md"
+  "readmeFilename": "README.md",
+  "scripts": {
+    "test": "./tests/all.js"
+  }
 }

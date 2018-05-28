@@ -21,7 +21,7 @@ var Line = function (key, value) {
 Line.checkIsComment = function (val) {
     for (var i = 0; i < COMMENT_STARTERS.length; i++) {
         var commentStarter = COMMENT_STARTERS[i];
-        if (val.indexOf(commentStarter) == 0) {
+        if (val.indexOf(commentStarter) === 0) {
             return true;
         }
     }
@@ -32,7 +32,7 @@ Line.normalizeComment = function (val) {
     for (var i = 0; i < COMMENT_STARTERS.length; i++) {
         var commentStarter = COMMENT_STARTERS[i];
         var index = val.indexOf(commentStarter);
-        if (index == 0) {
+        if (index === 0) {
             var normalized = val.substr(commentStarter.length, val.length - commentStarter.length);
             normalized = normalized.trim();
             return normalized;

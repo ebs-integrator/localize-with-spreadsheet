@@ -48,7 +48,7 @@ FileWriter.prototype.getTransformedLines = function (lines, transformer) {
                 valueToInsert += transformer.transformKeyValue(line.getKey(), line.getValue());
             }
         }
-        if (i != lines.length - 1) {
+        if (i !== lines.length - 1) {
             valueToInsert += EOL;
         }
     }
