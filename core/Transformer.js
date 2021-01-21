@@ -47,7 +47,7 @@ var androidTransformer = {
         normalizedValue = normalizedValue.replace(/\u00A0/gi, "\\u00A0");
         normalizedValue = normalizedValue.replace(/([^\.]|^)(\.{3})([^\.]|$)/gi, '$1&#8230;$3');
 
-        var ouput = '<string name="' + key + '">"' + normalizedValue + '"</string>';
+        var ouput = '<string name="'+ key + '">' + normalizedValue + '</string>';
 
         var currPos = 0, nbOcc = 1, newStr = "";
         while ((currPos = ouput.indexOf("%#$", currPos)) !== -1) {
