@@ -17,7 +17,7 @@ GSReader.prototype.fetchAllCells = function() {
   if (self._fetchedWorksheets == null) {
     if (!self._isFetching) {
       self._isFetching = true
-
+      
       self._sheet.getInfo(function(err, data) {
         if (err) {
           console.error('Error while fetching the Spreadsheet (' + err + ')')
