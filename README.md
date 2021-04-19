@@ -32,6 +32,13 @@ transformer.save('values-fr/strings.xml', properties('FR'));
 Run it with
 `node update-localization.js`
 
+## Add Run Script in xcode to download localisation automtically:
+```
+if which node >/dev/null; then
+node update-localization.js
+fi
+```
+
 ## Advanced
 You can filter the worksheets to include with the second parameter of 'fromGoogleSpreadsheet'
 Ex:
