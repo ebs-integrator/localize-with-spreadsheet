@@ -41,32 +41,32 @@ GSReader.prototype.fetchAllCells = function() {
   }
 }
 
-GSReader.prototype.select = async function(keyCol, valCol) {
+GSReader.prototype.select = async function(keyCol, valCol, defaultLanguage) {
   const self = this
 
   const worksheets = await self.fetchAllCells()
 
-  return self.extractFromRawData(worksheets, keyCol, valCol)
+  return self.extractFromRawData(worksheets, keyCol, valCol, defaultLanguage)
 }
 
-GSReader.prototype.extractFromRawData = function(rawWorksheets, keyCol, valCol) {
+GSReader.prototype.extractFromRawData = function(rawWorksheets, keyCol, valCol, defaultLanguage) {
   const extractedLines = []
   for (let i = 0; i < rawWorksheets.length; i++) {
-    const extracted = this.extractFromWorksheet(rawWorksheets[i], keyCol, valCol)
+    const extracted = this.extractFromWorksheet(rawWorksheets[i], keyCol, valCol, defaultLanguage)
     extractedLines.push.apply(extractedLines, extracted)
   }
 
   return extractedLines
 }
 
-GSReader.prototype.extractFromWorksheet = function(rawWorksheet, keyCol, valCol) {
+GSReader.prototype.extractFromWorksheet = function(rawWorksheet, keyCol, valCol, defaultLanguage) {
   var results = [];
 
   var rows = this.flatenWorksheet(rawWorksheet);
 
   var headers = rows[0];
   if (headers) {
-    var keyIndex = -1, valIndex = -1;
+    var keyIndex = -1, valIndex = -1, defaultLanguageIndex = -1;
     for (var i = 0; i < headers.length; i++) {
       var value = headers[i];
       if (value == keyCol) {
@@ -75,12 +75,15 @@ GSReader.prototype.extractFromWorksheet = function(rawWorksheet, keyCol, valCol)
       if (value == valCol) {
         valIndex = i;
       }
+      if (defaultLanguage && value == defaultLanguage) {
+        defaultLanguageIndex = i;
+      }
     }
     for (var i = 1; i < rows.length; i++) {
       var row = rows[i];
       if (row) {
         var keyValue = row[keyIndex];
-        var valValue = row[valIndex];
+        var valValue = row[valIndex] || row[defaultLanguageIndex];
 
         results.push(new Line(keyValue, valValue));
       }

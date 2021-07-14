@@ -14,6 +14,10 @@ Gs2File.fromGoogleSpreadsheet = function(spreadsheetKey, sheets) {
   )
 }
 
+Gs2File.prototype.setDefaultLanguage = function(lang) {
+  this._defaultLanguage = lang
+}
+
 Gs2File.prototype.setValueCol = function(valueCol) {
   this._defaultValueCol = valueCol
 }
@@ -37,12 +41,17 @@ Gs2File.prototype.save = async function(outputPath, opts) {
   opts = opts || {}
 
   let keyCol = opts.keyCol
+  let defaultLanguage = opts.defaultLanguage
   let valueCol = opts.valueCol
   let format = opts.format
   let encoding = opts.encoding
 
   if (!keyCol) {
     keyCol = this._defaultKeyCol
+  }
+
+  if (!defaultLanguage) {
+    defaultLanguage = this._defaultLanguage
   }
 
   if (!valueCol) {
@@ -60,7 +69,7 @@ Gs2File.prototype.save = async function(outputPath, opts) {
     }
   }
 
-  const lines = await this._reader.select(keyCol, valueCol)
+  const lines = await this._reader.select(keyCol, valueCol, defaultLanguage)
   if (lines) {
     const transformer = Transformer[format || 'android']
     self._writer.write(outputPath, encoding, lines, transformer, opts)
