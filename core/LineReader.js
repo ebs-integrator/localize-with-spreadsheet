@@ -52,7 +52,7 @@ GSReader.prototype.select = async function(keyCol, valCol, defaultLanguage) {
 GSReader.prototype.extractFromRawData = function(rawWorksheets, keyCol, valCol, defaultLanguage) {
   const extractedLines = []
   for (let i = 0; i < rawWorksheets.length; i++) {
-    const extracted = this.extractFromWorksheet(rawWorksheets[i], keyCol, valCol)
+    const extracted = this.extractFromWorksheet(rawWorksheets[i], keyCol, valCol, defaultLanguage)
     extractedLines.push.apply(extractedLines, extracted)
   }
 
@@ -83,7 +83,7 @@ GSReader.prototype.extractFromWorksheet = function(rawWorksheet, keyCol, valCol,
       var row = rows[i];
       if (row) {
         var keyValue = row[keyIndex];
-        var valValue = row[valIndex] || row[defaultLanguage];
+        var valValue = row[valIndex] || row[defaultLanguageIndex];
 
         results.push(new Line(keyValue, valValue));
       }
