@@ -24,6 +24,9 @@ const properties = (value) => {
   return { valueCol: value, format: 'android' } // similarly, for iOS: { valueCol: value, format: 'ios' } 
 }
 
+//set default language if needed. It will fill empty values with values for default key. 
+transformer.setDefaultLanguage('en')
+
 transformer.setKeyCol('KEY')
 transformer.save('values/strings.xml', properties('NL'));
 transformer.save('values-fr/strings.xml', properties('FR'));
