@@ -53,21 +53,6 @@ Localize.fromGoogleSpreadsheet(credentials, spreadsheet_key, "*").then(
 );
 ```
 
-Alternative
-
-```javascript
-
-Localize.fromGoogleSpreadsheet(credentials, spreadsheet_key, '*').then(localizer => {
-    localizer.setKeyCol('KEY')
-
-    Array.from(['en', 'fr']).forEach(language => localizer.save(
-        transformer.save("Localizable.strings", { valueCol: "en", format: "ios" });
-        `resource/${language}/Localizable.strings`,
-        { valueCol: language, format: 'ios' } // format can also be 'android' or 'json'
-    ))
-})
-```
-
 2. Create a Service Account and fill the credentials above: https://theoephraim.github.io/node-google-spreadsheet/#/getting-started/authentication?id=service-account
 
 3. Share your google sheet with the email in `client_email` field.
@@ -77,6 +62,23 @@ Localize.fromGoogleSpreadsheet(credentials, spreadsheet_key, '*').then(localizer
 5. Run it with
    `node update-localization.js`
 
+
+### An alternative for Localizer script
+
+```javascript
+/* ... */
+
+Localize.fromGoogleSpreadsheet(credentials, spreadsheet_key, '*').then(localizer => {
+    localizer.setKeyCol('KEY')
+
+    Array.from(['en', 'fr']).forEach(language => localizer.save(
+        localizer.save("Localizable.strings", { valueCol: "en", format: "ios" });
+        `resource/${language}/Localizable.strings`,
+        { valueCol: language, format: 'ios' } // format can also be 'android' or 'json'
+    ))
+})
+
+```
 ## Advanced
 
 You can filter the worksheets to include with the third parameter of 'fromGoogleSpreadsheet':
