@@ -5,7 +5,7 @@ const iOSTransformer = {
     return "// " + comment;
   },
   transformKeyValue: function(key, value) {
-    let normalizedValue = value.replace(/%newline%/gi, "\\n")
+    let normalizedValue = value.toString().replace(/%newline%/gi, "\\n");
     normalizedValue = normalizedValue.replace(/"/gi, '\\"')
     normalizedValue = normalizedValue.replace(/%([@df])/gi, '%$1')
     normalizedValue = normalizedValue.replace(/%s/gi, "%@")
@@ -32,14 +32,14 @@ const androidTransformer = {
     return "<!-- " + comment + " -->";
   },
   transformKeyValue: function(key, value) {
-    let normalizedValue = value.replace(/%newline%/gi, "\\n");
+    let normalizedValue = value.toString().replace(/%newline%/gi, "\\n");
     normalizedValue = normalizedValue.replace(/'/gi, "\\'");
     normalizedValue = normalizedValue.replace(/%([sdf])/gi, '%#$$$1');
     normalizedValue = normalizedValue.replace(/&/gi, "&amp;");
     normalizedValue = normalizedValue.replace(/\u00A0/gi, "\\u00A0");
     normalizedValue = normalizedValue.replace(/([^\.]|^)(\.{3})([^\.]|$)/gi, '$1&#8230;$3')
 
-    let ouput = '<string name="' + key + '">' + normalizedValue + '</string>'
+    let ouput = '<string name="' + key + '">"' + normalizedValue + '"</string>'
     let currPos = 0
     let nbOcc = 1
 
@@ -79,8 +79,8 @@ const androidTransformer = {
 }
 
 const jsonTransformer = {
-  transformComment:  function(comment) {
-    return ""
+  transformComment:  function() {
+    return null
   },
   transformKeyValue: function(key, value) {
     let normalizedValue = value.replace(/%newline%/gi, "\\n")

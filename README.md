@@ -1,57 +1,107 @@
-# Convert a Google Spreadsheet to a localization file. Version 2
-
+# Convert a Google Spreadsheet to a localization file. Version 3
 
 ## Installation
-`npm install localize-with-spreadsheet-2`
 
-## Differences in version 2 (only major ones listed)
-- Preserve line breaks from the Google Sheets
+`npm install ebs-integrator/localize-with-spreadsheet`
+
+## Differences in version 3.0.0
+
+- Uses newer version of `google-spreadsheet` which in turn supports the Google Sheets v4 API
 
 ## Example
-Given a Google Spreadsheet like this:  
-![Spreadsheet example](https://github.com/xavierha/localize-with-spreadsheet/raw/master/doc/spreadsheet-example.png)
 
-The tool fetch the spreadsheet and write the result to a file in the Android or iOS format:
+Requires:
 
-![Result android](https://github.com/xavierha/localize-with-spreadsheet/raw/master/doc/result-android.png) ![Result iOS](https://github.com/xavierha/localize-with-spreadsheet/raw/master/doc/result-ios.png)
+- Service account (https://theoephraim.github.io/node-google-spreadsheet/#/getting-started/authentication?id=service-account)
+- Spreadsheet key
+- Sheet name filter
 
-Create a file `update-localization.js`
+## Setup
 
-```javascript 1.7
-const Localize = require('localize-with-spreadsheet')
-const transformer = Localize.fromGoogleSpreadsheet('0Aq6WlQdq71FydDZlaWdmMEUtc2tUb1k2cHRBS2hzd2c', '*')
-const properties = (value) => {
-  return { valueCol: value, format: 'android' } // similarly, for iOS: { valueCol: value, format: 'ios' } 
-}
+1. Create a file `update-localization.js`
 
-//set default language if needed. It will fill empty values with values for default key. 
-transformer.setDefaultLanguage('en')
+```javascript
+var Localize = require("localize-with-spreadsheet");
 
-transformer.setKeyCol('KEY')
-transformer.save('values/strings.xml', properties('NL'));
-transformer.save('values-fr/strings.xml', properties('FR'));
+const credentials = {
+  type: "service_account",
+  project_id: "",
+  private_key_id: "",
+  private_key: "",
+  client_email: "",
+  client_id: "",
+  auth_uri: "",
+  token_uri: "",
+  auth_provider_x509_cert_url: "",
+  client_x509_cert_url: "",
+};
+
+const spreadsheet_key = "";
+Localize.fromGoogleSpreadsheet(credentials, spreadsheet_key, "*").then(
+  (localizer) => {
+    localizer.setKeyCol("KEY");
+
+    localizer.save("resource/Localizable.strings", {
+      valueCol: "en",
+      format: "ios",
+    });
+    localizer.save("resource/strings.xml", {
+      valueCol: "en",
+      format: "android",
+    });
+  }
+);
 ```
 
-Run it with
-`node update-localization.js`
+Alternative
 
-## Add Run Script in xcode to download localisation automtically:
+```javascript
+
+Localize.fromGoogleSpreadsheet(credentials, spreadsheet_key, '*').then(localizer => {
+    localizer.setKeyCol('KEY')
+
+    Array.from(['en', 'fr']).forEach(language => localizer.save(
+        transformer.save("Localizable.strings", { valueCol: "en", format: "ios" });
+        `resource/${language}/Localizable.strings`,
+        { valueCol: language, format: 'ios' } // format can also be 'android' or 'json'
+    ))
+})
 ```
+
+2. Create a Service Account and fill the credentials above: https://theoephraim.github.io/node-google-spreadsheet/#/getting-started/authentication?id=service-account
+
+3. Share your google sheet with the email in `client_email` field.
+
+4. Get the spreadsheet key from the document url: `https://docs.google.com/spreadsheets/d/{spreadsheet_key}/`
+
+5. Run it with
+   `node update-localization.js`
+
+## Advanced
+
+You can filter the worksheets to include with the third parameter of 'fromGoogleSpreadsheet':
+
+```
+Localize.fromGoogleSpreadsheet('[service-account]', '[spreadsheet-key]', '*')
+Localize.fromGoogleSpreadsheet('[service-account]', '[spreadsheet-key]', '[Sheet1]')
+Localize.fromGoogleSpreadsheet('[service-account]', '[spreadsheet-key]', 0)
+```
+
+## Configure XCode to automatically download localization on build
+
+1. Add update-localization.js in root folder of the project
+2. Create a New Run Script Phase and add this code:
+
+```bash
 if which node >/dev/null; then
 node update-localization.js
 fi
 ```
 
-## Advanced
-You can filter the worksheets to include with the second parameter of 'fromGoogleSpreadsheet'
-Ex:
-```
-Localize.fromGoogleSpreadsheet("<Key>", '*');
-Localize.fromGoogleSpreadsheet("<Key>", ['HomeScreen, 'ContactScreen']);
-Localize.fromGoogleSpreadsheet("<Key>", [0, 2]);
-```
-
 ## Notes
+
 - The script will preserve everything that is above the tags: < !-- AUTO-GENERATED --> or // AUTO-GENERATED
-- Your spreadsheet should be "Published" for this to work
-- You need to have git installed for the installation
+
+## Credits
+
+- Originally cloned from `https://github.com/xvrh/localize-with-spreadsheet`.

@@ -41,14 +41,22 @@ FileWriter.prototype.getTransformedLines = function(lines, transformer) {
 
     if (!line.isEmpty()) {
       if (line.isComment()) {
-        valueToInsert += transformer.transformComment(line.getComment())
+        const transformed = transformer.transformComment(line.getComment())
+
+        if (transformed !== null) {
+          valueToInsert += transformed
+
+          if (i !== lines.length - 1) {
+            valueToInsert += EOL
+          }
+        }
       } else {
         valueToInsert += transformer.transformKeyValue(line.getKey(), line.getValue())
-      }
-    }
 
-    if (i !== lines.length - 1) {
-      valueToInsert += EOL
+        if (i !== lines.length - 1) {
+          valueToInsert += EOL
+        }
+      }
     }
   }
 

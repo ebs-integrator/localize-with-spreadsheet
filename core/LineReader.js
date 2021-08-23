@@ -1,5 +1,5 @@
 const Line = require('./Line.js')
-const GoogleSpreadsheet = require('google-spreadsheet')
+const { GoogleSpreadsheet } = require('google-spreadsheet')
 const Q = require('q')
 
 const GSReader = function(spreadsheetKey, sheetsFilter) {
@@ -11,28 +11,40 @@ const GSReader = function(spreadsheetKey, sheetsFilter) {
   this._fetchedWorksheets = null
 }
 
-GSReader.prototype.fetchAllCells = function() {
+GSReader.builder = async function(credentials, spreadsheetKey, sheetsFilter) {
+  const reader = new GSReader(spreadsheetKey, sheetsFilter)  
+  await reader._sheet.useServiceAccountAuth(credentials);
+
+  return reader
+}
+
+GSReader.prototype.fetchAllCells = async function() {
   const self = this
 
   if (self._fetchedWorksheets == null) {
     if (!self._isFetching) {
       self._isFetching = true
-      
-      self._sheet.getInfo(function(err, data) {
-        if (err) {
-          console.error('Error while fetching the Spreadsheet (' + err + ')')
-          console.warn('WARNING! Check that your spreadsheet is "Published" in "File > Publish to the web..."')
 
-          self._fetchDeferred.reject(err)
-        } else {
-          const worksheetReader = new WorksheetReader(self._sheetsFilter, data.worksheets)
+      try {
+        await self._sheet.loadInfo()
 
-          worksheetReader.read(function(fetchedWorksheets) {
-            self._fetchedWorksheets = fetchedWorksheets
-            self._fetchDeferred.resolve(self._fetchedWorksheets)
-          })
+        const sheets = self._sheet.sheetsByIndex
+        const worksheetReader = new WorksheetReader(self._sheetsFilter, sheets)
+        
+        try {
+          self._fetchedWorksheets = await worksheetReader.next()  
+          self._fetchDeferred.resolve(self._fetchedWorksheets)
+        } catch (error) {
+          console.error('worksheetReader stopped becasue of: ' + error)
+          self._fetchDeferred.reject(err)          
         }
-      })
+        
+      } catch (err) {
+        console.error('Error while fetching the Spreadsheet (' + err + ')')
+        console.warn('WARNING! Check that your spreadsheet is "Published" in "File > Publish to the web..."')
+
+        self._fetchDeferred.reject(err)
+      }
     }
 
     return this._fetchDeferred.promise
@@ -41,51 +53,65 @@ GSReader.prototype.fetchAllCells = function() {
   }
 }
 
-GSReader.prototype.select = async function(keyCol, valCol, defaultLanguage) {
+GSReader.prototype.select = async function(keyCol, valCol) {
   const self = this
 
-  const worksheets = await self.fetchAllCells()
-
-  return self.extractFromRawData(worksheets, keyCol, valCol, defaultLanguage)
+  try {
+    const cells = await self.fetchAllCells()
+    return self.extractFromRawData(cells, keyCol, valCol)
+  } catch (error) {
+    console.error('Fetching stopped because of: ' + error)
+    return undefined
+  }
 }
 
-GSReader.prototype.extractFromRawData = function(rawWorksheets, keyCol, valCol, defaultLanguage) {
+GSReader.prototype.extractFromRawData = function(rawWorksheets, keyCol, valCol) {
   const extractedLines = []
   for (let i = 0; i < rawWorksheets.length; i++) {
-    const extracted = this.extractFromWorksheet(rawWorksheets[i], keyCol, valCol, defaultLanguage)
+    const extracted = this.extractFromWorksheet(rawWorksheets[i], keyCol, valCol)
     extractedLines.push.apply(extractedLines, extracted)
   }
 
   return extractedLines
 }
 
-GSReader.prototype.extractFromWorksheet = function(rawWorksheet, keyCol, valCol, defaultLanguage) {
-  var results = [];
+GSReader.prototype.extractFromWorksheet = function(rawWorksheet, keyCol, valCol) {
+  let results = [];
 
-  var rows = this.flatenWorksheet(rawWorksheet);
+  // const rows = this.flatenWorksheet(rawWorksheet);
+  const rows = rawWorksheet
 
-  var headers = rows[0];
+  const headers = rows[0];
+
   if (headers) {
-    var keyIndex = -1, valIndex = -1, defaultLanguageIndex = -1;
-    for (var i = 0; i < headers.length; i++) {
-      var value = headers[i];
-      if (value == keyCol) {
+    let keyIndex = -1
+    let valIndex = -1;
+
+    for (let i = 0; i < headers.length; i++) {
+      const value = headers[i].value;
+
+      if (value === keyCol) {
         keyIndex = i;
       }
-      if (value == valCol) {
+      if (value === valCol) {
         valIndex = i;
       }
-      if (defaultLanguage && value == defaultLanguage) {
-        defaultLanguageIndex = i;
-      }
     }
-    for (var i = 1; i < rows.length; i++) {
-      var row = rows[i];
-      if (row) {
-        var keyValue = row[keyIndex];
-        var valValue = row[valIndex] || row[defaultLanguageIndex];
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i];
 
-        results.push(new Line(keyValue, valValue));
+      if (row) {
+        try {
+          const keyValue = row[keyIndex].value;
+          const valValue = row[valIndex].value;
+
+          if (keyValue) {
+            results.push(new Line(keyValue, valValue));
+          }
+
+        } catch (err) {
+
+        }
       }
     }
   }
@@ -93,50 +119,21 @@ GSReader.prototype.extractFromWorksheet = function(rawWorksheet, keyCol, valCol,
   return results;
 }
 
-GSReader.prototype.flatenWorksheet = function(rawWorksheet) {
-  var rows = [];
-  var lastRowIndex = 1;
-  for (var i = 0; i < rawWorksheet.length; i++) {
-    var cell = rawWorksheet[i];
-
-    //detect empty line
-    var rowIndex = cell.row;
-    var diffWithLastRow = rowIndex - lastRowIndex;
-    if (diffWithLastRow > 1) {
-      for (var j = 0; j < diffWithLastRow - 1; j++) {
-        var newRow = rows[lastRowIndex + j] = [];
-        newRow[cell.col - 1] = '';
-      }
-    }
-    lastRowIndex = rowIndex;
-
-    var row = rows[cell.row - 1];
-    if (!row) {
-      row = rows[cell.row - 1] = [];
-    }
-    row[cell.col - 1] = cell.value;
-  }
-  return rows;
-}
-
 GSReader.isAllSheets = function(sheet) {
-  if (!sheet || sheet == '*') {
-    return true;
-  }
-  return false;
+  return !sheet || sheet === '*';
 };
 
 GSReader.shouldUseWorksheet = function(selectedSheets, title, index) {
   if (GSReader.isAllSheets(selectedSheets)) {
     return true;
   } else {
-    var selectedArray = forceArray(selectedSheets);
-    for (var i = 0; i < selectedArray.length; i++) {
-      var a = selectedArray[i];
+    const selectedArray = forceArray(selectedSheets);
+    for (let i = 0; i < selectedArray.length; i++) {
+      const a = selectedArray[i];
 
-      if (typeof (a) == "number" && index == a) {
+      if (typeof (a) == "number" && index === a) {
         return true;
-      } else if (typeof (a) == "string" && title == a) {
+      } else if (typeof (a) == "string" && title === a) {
         return true;
       }
     }
@@ -144,35 +141,36 @@ GSReader.shouldUseWorksheet = function(selectedSheets, title, index) {
   }
 }
 
-var WorksheetReader = function(filterSheets, worksheets) {
-  this._filterSheets = filterSheets;
-  this._worksheets = worksheets;
-  this._index = 0;
+const WorksheetReader = function(filterSheets, worksheets) {
+  this._filterSheets = filterSheets
+  this._worksheets = worksheets
+  this._index = 0
 
-  this._data = [];
+  this._data = []
 }
 
-WorksheetReader.prototype.read = function(cb) {
-  this.next(cb);
-}
+WorksheetReader.prototype.next = async function() {
+  const self = this;
 
-WorksheetReader.prototype.next = function(cb) {
-  var self = this;
   if (this._index < this._worksheets.length) {
-    var index = this._index++;
-    var currentWorksheet = this._worksheets[index];
+    const index = this._index++;
+    const currentWorksheet = this._worksheets[index];
+
     if (GSReader.shouldUseWorksheet(this._filterSheets, currentWorksheet.title, index)) {
-      currentWorksheet.getCells(currentWorksheet.id, function(err, cells) {
-        if (!err) {
-          self._data.push(cells);
-        }
-        self.next(cb);
-      });
+      try {
+        await currentWorksheet.loadCells()
+
+        self._data.push(currentWorksheet._cells)
+      } catch (err) {
+        console.error(err)
+      }
+
+      return self.next()
     } else {
-      this.next(cb);
+      return this.next()
     }
   } else {
-    cb(this._data);
+    return this._data
   }
 }
 

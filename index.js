@@ -7,15 +7,13 @@ const Gs2File = function(reader, writer) {
   this._writer = writer
 }
 
-Gs2File.fromGoogleSpreadsheet = function(spreadsheetKey, sheets) {
+Gs2File.fromGoogleSpreadsheet = async function(credentials, spreadhseetKey, sheets) {
+  const reader = await GSReader.builder(credentials, spreadhseetKey, sheets)
+
   return new Gs2File(
-    new GSReader(spreadsheetKey, sheets),
+    reader,
     new FileWriter()
   )
-}
-
-Gs2File.prototype.setDefaultLanguage = function(lang) {
-  this._defaultLanguage = lang
 }
 
 Gs2File.prototype.setValueCol = function(valueCol) {
@@ -41,17 +39,12 @@ Gs2File.prototype.save = async function(outputPath, opts) {
   opts = opts || {}
 
   let keyCol = opts.keyCol
-  let defaultLanguage = opts.defaultLanguage
   let valueCol = opts.valueCol
   let format = opts.format
   let encoding = opts.encoding
 
   if (!keyCol) {
     keyCol = this._defaultKeyCol
-  }
-
-  if (!defaultLanguage) {
-    defaultLanguage = this._defaultLanguage
   }
 
   if (!valueCol) {
@@ -69,10 +62,14 @@ Gs2File.prototype.save = async function(outputPath, opts) {
     }
   }
 
-  const lines = await this._reader.select(keyCol, valueCol, defaultLanguage)
-  if (lines) {
-    const transformer = Transformer[format || 'android']
-    self._writer.write(outputPath, encoding, lines, transformer, opts)
+  try {
+    const lines = await this._reader.select(keyCol, valueCol)    
+    if (lines) {
+      const transformer = Transformer[format || 'android']
+      self._writer.write(outputPath, encoding, lines, transformer, opts)
+    }
+  } catch (error) {
+    console.error('GSReader stopped because of error: ' + error)
   }
 }
 
