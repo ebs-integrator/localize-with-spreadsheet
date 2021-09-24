@@ -39,7 +39,7 @@ const androidTransformer = {
     normalizedValue = normalizedValue.replace(/\u00A0/gi, "\\u00A0");
     normalizedValue = normalizedValue.replace(/([^\.]|^)(\.{3})([^\.]|$)/gi, '$1&#8230;$3')
 
-    let ouput = '<string name="' + key + '">"' + normalizedValue + '"</string>'
+    let ouput = '<string name="' + key + '">' + normalizedValue + '</string>'
     let currPos = 0
     let nbOcc = 1
 
