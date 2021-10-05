@@ -40,7 +40,6 @@ const androidTransformer = {
     normalizedValue = normalizedValue.replace(/([^\.]|^)(\.{3})([^\.]|$)/gi, '$1&#8230;$3')
 	let transformedKey = key.toLowerCase()
 	transformedKey = transformedKey.replace(' ', '_')
-	if (normalizedValue === '') normalizedValue = 'this key has no value'
 
     let ouput = '	<string name="' + transformedKey + '">' + normalizedValue + '</string>'
     let currPos = 0

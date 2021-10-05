@@ -53,29 +53,29 @@ GSReader.prototype.fetchAllCells = async function() {
   }
 }
 
-GSReader.prototype.select = async function(keyCol, valCol) {
+GSReader.prototype.select = async function(keyCol, valCol, defaultLanguage) {
   const self = this
 
   try {
     const cells = await self.fetchAllCells()
-    return self.extractFromRawData(cells, keyCol, valCol)
+    return self.extractFromRawData(cells, keyCol, valCol, defaultLanguage)
   } catch (error) {
     console.error('Fetching stopped because of: ' + error)
     return undefined
   }
 }
 
-GSReader.prototype.extractFromRawData = function(rawWorksheets, keyCol, valCol) {
+GSReader.prototype.extractFromRawData = function(rawWorksheets, keyCol, valCol, defaultLanguage) {
   const extractedLines = []
   for (let i = 0; i < rawWorksheets.length; i++) {
-    const extracted = this.extractFromWorksheet(rawWorksheets[i], keyCol, valCol)
+    const extracted = this.extractFromWorksheet(rawWorksheets[i], keyCol, valCol, defaultLanguage)
     extractedLines.push.apply(extractedLines, extracted)
   }
 
   return extractedLines
 }
 
-GSReader.prototype.extractFromWorksheet = function(rawWorksheet, keyCol, valCol) {
+GSReader.prototype.extractFromWorksheet = function(rawWorksheet, keyCol, valCol, defaultLanguage) {
   let results = [];
 
   // const rows = this.flatenWorksheet(rawWorksheet);
@@ -84,8 +84,9 @@ GSReader.prototype.extractFromWorksheet = function(rawWorksheet, keyCol, valCol)
   const headers = rows[0];
 
   if (headers) {
-    let keyIndex = -1
+    let keyIndex = -1;
     let valIndex = -1;
+	let defaultLanguageIndex = -1;
 
     for (let i = 0; i < headers.length; i++) {
       const value = headers[i].value;
@@ -96,6 +97,9 @@ GSReader.prototype.extractFromWorksheet = function(rawWorksheet, keyCol, valCol)
       if (value === valCol) {
         valIndex = i;
       }
+	  if (defaultLanguage && value == defaultLanguage) {
+        defaultLanguageIndex = i;
+      }
     }
     for (let i = 1; i < rows.length; i++) {
       const row = rows[i];
@@ -103,7 +107,7 @@ GSReader.prototype.extractFromWorksheet = function(rawWorksheet, keyCol, valCol)
       if (row) {
         try {
           const keyValue = row[keyIndex].value;
-          const valValue = row[valIndex].value;
+          const valValue = row[valIndex].value || row[defaultLanguageIndex].value;
 
           if (keyValue) {
             results.push(new Line(keyValue, valValue));

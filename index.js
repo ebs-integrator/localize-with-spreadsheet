@@ -20,6 +20,10 @@ Gs2File.prototype.setValueCol = function(valueCol) {
   this._defaultValueCol = valueCol
 }
 
+Gs2File.prototype.setDefaultLanguage = function(lang) {
+  this._defaultLanguage = lang
+}
+
 Gs2File.prototype.setKeyCol = function(keyCol) {
   this._defaultKeyCol = keyCol
 }
@@ -42,6 +46,7 @@ Gs2File.prototype.save = async function(outputPath, opts) {
   let valueCol = opts.valueCol
   let format = opts.format
   let encoding = opts.encoding
+  let defaultLanguage = opts.defaultLanguage
 
   if (!keyCol) {
     keyCol = this._defaultKeyCol
@@ -54,6 +59,10 @@ Gs2File.prototype.save = async function(outputPath, opts) {
   if (!format) {
     format = this._defaultFormat
   }
+  
+  if (!defaultLanguage) {
+    defaultLanguage = this._defaultLanguage
+  }
 
   if (!encoding) {
     encoding = this._defaultEncoding
@@ -63,7 +72,7 @@ Gs2File.prototype.save = async function(outputPath, opts) {
   }
 
   try {
-    const lines = await this._reader.select(keyCol, valueCol)    
+    const lines = await this._reader.select(keyCol, valueCol, defaultLanguage)
     if (lines) {
       const transformer = Transformer[format || 'android']
       self._writer.write(outputPath, encoding, lines, transformer, opts)
