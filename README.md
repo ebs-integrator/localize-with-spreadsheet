@@ -40,7 +40,7 @@ const spreadsheet_key = "";
 Localize.fromGoogleSpreadsheet(credentials, spreadsheet_key, "*").then(
   (localizer) => {
     localizer.setKeyCol("KEY");
-	localizer.setDefaultLanguage('en')
+    localizer.setDefaultLanguage('en')
 
     localizer.save("resource/Localizable.strings", {
       valueCol: "en",
@@ -71,7 +71,7 @@ Localize.fromGoogleSpreadsheet(credentials, spreadsheet_key, "*").then(
 
 Localize.fromGoogleSpreadsheet(credentials, spreadsheet_key, '*').then(localizer => {
     localizer.setKeyCol('KEY')
-	localizer.setDefaultLanguage('en')
+    localizer.setDefaultLanguage('en')
 
     Array.from(['en', 'fr']).forEach(language => localizer.save(
         localizer.save("Localizable.strings", { valueCol: "en", format: "ios" });

@@ -86,7 +86,7 @@ GSReader.prototype.extractFromWorksheet = function(rawWorksheet, keyCol, valCol,
   if (headers) {
     let keyIndex = -1;
     let valIndex = -1;
-	let defaultLanguageIndex = -1;
+    let defaultLanguageIndex = -1;
 
     for (let i = 0; i < headers.length; i++) {
       const value = headers[i].value;
@@ -97,7 +97,7 @@ GSReader.prototype.extractFromWorksheet = function(rawWorksheet, keyCol, valCol,
       if (value === valCol) {
         valIndex = i;
       }
-	  if (defaultLanguage && value == defaultLanguage) {
+      if (defaultLanguage && value == defaultLanguage) {
         defaultLanguageIndex = i;
       }
     }
